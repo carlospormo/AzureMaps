@@ -17,6 +17,7 @@ export class BEAzureMaps {
   private static _dataSource: atlas.source.DataSource;
   private static _tilesDataSource: atlas.source.DataSource;
   private static _polygonLayer: atlas.layer.PolygonLayer;
+  private static mapMouseEvent: atlas.MapMouseEvent;
 
   static injectCss(css): void {
     /* create the link element */
@@ -42,6 +43,16 @@ export class BEAzureMaps {
     this._map = new atlas.Map(mapId, options);
     return this._map;
   };
+
+  static addEvent(
+    event: "mousedown" | "mouseup" | "mouseover" | "mousemove" | "click" | "dblclick" | "mouseout" | "contextmenu"
+  ) {
+    this._map.events.add(event, (x:atlas.MapMouseEvent) => this.mapMouseEvent = x );
+  };
+
+  static getMapMouseEvent() {
+    return { position: this.mapMouseEvent.position };
+  }
 
   static setCamera(options: atlas.CameraOptions):void {
     this._map.setCamera(options);

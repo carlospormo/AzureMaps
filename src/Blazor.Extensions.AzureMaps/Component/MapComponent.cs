@@ -12,6 +12,7 @@ namespace Blazor.Extensions.AzureMaps
         [Inject] public IMapService MapService { get; set; } = default!;
         [Parameter] public MapOptions? Options { get; set; } = default!;
         [Parameter] public DrawingManagerOptions? DrawingManagerOptions { get; set; } = default!;
+        [Parameter] public EventCallback<MapMouseEvent> OnClick { get; set; }
 
         protected readonly Guid MapId;
         private IMapReference map = default!;
@@ -28,6 +29,19 @@ namespace Blazor.Extensions.AzureMaps
             {
                 this.map = await this.MapService
                     .CreateMap(this.MapId, this.Options);
+                if (this.OnClick.HasDelegate)
+                {
+                    await this.MapService.AddEvent("click");
+                }
+            }
+        }
+
+        protected async Task MapClicked()
+        {
+            if (this.OnClick.HasDelegate)
+            {
+                var mapMouseEvent = await this.MapService.GetMapMouseEvent();
+                await this.OnClick.InvokeAsync(mapMouseEvent);
             }
         }
 
@@ -56,9 +70,19 @@ namespace Blazor.Extensions.AzureMaps
             return await this.MapService.GetTiles();
         }
 
-        public async Task AddPolygonByTiles(List<List<int>> tileIds,int zoom, string datasourceId, string id, PolygonOptions properties)
+        public async Task<List<int>> GetTile(double longitude, double latitude, int zoom)
         {
-            await this.MapService.AddPolygonByTiles(tileIds, zoom, datasourceId, id, properties);
+            return await this.MapService.GetTile(longitude, latitude, zoom);
+        }
+
+        public async Task AddPolygon(List<List<double>> boundingList,int zoom, string datasourceId, string id, PolygonOptions properties)
+        {
+            await this.MapService.AddPolygon(boundingList, zoom, datasourceId, id, properties);
+        }
+
+        public async Task<MapMouseEvent> GetMapMouseEvent()
+        {
+            return await this.MapService.GetMapMouseEvent();
         }
 
         public ValueTask DisposeAsync()

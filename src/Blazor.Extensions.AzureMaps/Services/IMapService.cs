@@ -13,6 +13,9 @@ namespace Blazor.Extensions.AzureMaps
         Task ClearShapes();
         Task ClearTiles();
         Task<List<List<int>>> GetTiles();
-        Task AddPolygonByTiles(List<List<int>> tiles, int zoom, string datasourceId, string id, PolygonOptions properties);
+        Task<List<int>> GetTile(double longitude, double latitude, int zoom);
+        Task AddPolygon(List<List<double>> boundingList, int zoom, string datasourceId, string id, PolygonOptions properties);
+        Task AddEvent(string @event);
+        Task<MapMouseEvent> GetMapMouseEvent();
     }
 }

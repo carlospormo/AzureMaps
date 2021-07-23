@@ -85,16 +85,28 @@ namespace Blazor.Extensions.AzureMaps
                 $"{AzureMapsClass}.getTiles");
         }
 
-        public async Task AddPolygonByTiles(List<List<int>> tiles, int zoom, string datasourceId, string id, PolygonOptions properties)
+        public async Task<List<int>> GetTile(double longitude, double latitude, int zoom)
         {
-            await this.ClearTiles();
-            foreach (var tile in tiles)
-            {
-                var bounding = Conversions.TileIdToBounds(tile[0], tile[1], zoom);
-                var boundingList = bounding.ToPolygonList();
-                await this.azureMapsModule.InvokeVoidAsync(
-                    $"{AzureMapsClass}.addPolygon", datasourceId,boundingList,id,properties);
-            }
+            return await this.azureMapsModule.InvokeAsync<List<int>>(
+                $"{AzureMapsClass}.getTile", longitude,latitude,zoom);
+        }
+
+        public async Task AddPolygon(List<List<double>> boundingList, int zoom, string datasourceId, string id, PolygonOptions properties)
+        {
+            await this.azureMapsModule.InvokeVoidAsync(
+                $"{AzureMapsClass}.addPolygon", datasourceId,boundingList,id,properties);
+        }
+
+        public async Task AddEvent(string @event)
+        {
+            await this.azureMapsModule.InvokeVoidAsync(
+                $"{AzureMapsClass}.addEvent", @event);
+        }
+
+        public async Task<MapMouseEvent> GetMapMouseEvent()
+        {
+            return await this.azureMapsModule.InvokeAsync<MapMouseEvent>(
+                $"{AzureMapsClass}.getMapMouseEvent");
         }
 
         private async ValueTask EnsureModuleLoaded()
